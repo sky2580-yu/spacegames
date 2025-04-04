@@ -1,0 +1,251 @@
+<!DOCTYPE html> <!-- 声明这是一个HTML5文档 -->
+<html lang="en"> <!-- 设置网页语言为英文 -->
+<head> <!-- 头部区域开始，包含页面的元信息和样式 -->
+    <meta charset="UTF-8"> <!-- 设置字符编码为UTF-8，支持中文等特殊字符 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 设置移动端视口，确保在手机上正常显示 -->
+    <title>Andromeda Invaders - Space Shooter Game</title> <!-- 网页标题，显示在浏览器标签页上 -->
+    <style> <!-- CSS样式开始 -->
+        /* 基础样式重置，清除浏览器默认样式 */
+        * {
+            margin: 0; /* 清除所有元素的外边距 */
+            padding: 0; /* 清除所有元素的内边距 */
+            box-sizing: border-box; /* 设置盒模型，使宽度包含内边距和边框 */
+        }
+
+        /* 自定义太空风格字体 */
+        @font-face {
+            font-family: 'SpaceFont'; /* 定义字体名称 */
+            src: local('OCR-A'), local('Courier New'), monospace; /* 设置字体来源，按优先级排列 */
+        }
+
+        /* 页面基础样式 */
+        body {
+            background-color: #0A0A12; /* 深色背景，营造太空感 */
+            color: #E0E0E0; /* 浅灰色文字，便于阅读 */
+            font-family: system-ui, -apple-system, monospace; /* 设置字体，使用系统默认字体 */
+            min-height: 100vh; /* 最小高度为视口高度，确保页面填满屏幕 */
+            overflow-x: hidden; /* 禁止水平方向滚动 */
+        }
+
+        /* 星星闪烁动画定义 */
+        @keyframes twinkle {
+            0% { opacity: 0.2; } /* 动画开始时，星星较暗 */
+            50% { opacity: 0.8; } /* 动画中间点，星星最亮 */
+            100% { opacity: 0.2; } /* 动画结束时，星星回到较暗状态 */
+        }
+
+        /* 星星背景样式 */
+        .stars {
+            position: fixed; /* 固定位置，不随滚动移动 */
+            top: 0; /* 顶部对齐 */
+            left: 0; /* 左侧对齐 */
+            width: 100%; /* 宽度100%，填满屏幕 */
+            height: 100%; /* 高度100%，填满屏幕 */
+            pointer-events: none; /* 禁用鼠标事件，使星星不影响点击 */
+            z-index: -1; /* 置于最底层 */
+        }
+
+        /* 单个星星样式 */
+        .star {
+            position: absolute; /* 绝对定位，可以随机放置 */
+            background-color: #fff; /* 白色星星 */
+            width: 2px; /* 星星宽度 */
+            height: 2px; /* 星星高度 */
+            border-radius: 50%; /* 圆形星星 */
+            animation: twinkle 3s infinite; /* 应用闪烁动画：动画名称、持续时间、无限循环 */
+        }
+
+        /* 导航栏样式 */
+        .nav-bar {
+            position: fixed; /* 固定在顶部 */
+            top: 0; /* 顶部对齐 */
+            left: 0; /* 左侧对齐 */
+            right: 0; /* 右侧对齐 */
+            background: rgba(10, 10, 18, 0.95); /* 半透明背景 */
+            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+            border-bottom: 1px solid rgba(108, 67, 245, 0.3); /* 底部边框，紫色 */
+            z-index: 1000; /* 确保在最上层 */
+            padding: 1rem 0; /* 上下内边距 */
+        }
+
+        /* 导航栏内容容器 */
+        .nav-container {
+            max-width: 1200px; /* 最大宽度限制 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 0 2rem; /* 左右内边距 */
+            display: flex; /* 弹性布局 */
+            justify-content: space-between; /* 两端对齐 */
+            align-items: center; /* 垂直居中 */
+        }
+
+        /* 网站Logo样式 */
+        .nav-logo {
+            font-size: 1.5rem; /* 字体大小 */
+            color: #6C43F5; /* 紫色 */
+            text-decoration: none; /* 移除下划线 */
+        }
+
+        /* 导航链接容器 */
+        .nav-links {
+            display: flex; /* 弹性布局 */
+            gap: 2rem; /* 链接之间的间距 */
+        }
+
+        /* 导航链接样式 */
+        .nav-links a {
+            color: #E0E0E0; /* 浅灰色 */
+            text-decoration: none; /* 移除下划线 */
+            font-size: 1rem; /* 字体大小 */
+        }
+
+        .nav-links a:hover {
+            color: #00F7FF; /* 悬浮时变为霓虹蓝 */
+        }
+
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px; /* 最大宽度限制 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 80px 2rem 2rem; /* 上、左右、下内边距，上部留出导航栏空间 */
+            min-height: 100vh; /* 最小高度为视口高度 */
+        }
+
+        /* 标题区域样式 */
+        .header {
+            text-align: center; /* 文字居中 */
+            margin-bottom: 3rem; /* 底部外边距 */
+        }
+
+        /* 主标题样式 */
+        .header h1 {
+            font-size: 3.5rem; /* 字体大小 */
+            color: #6C43F5; /* 紫色 */
+            margin-bottom: 1rem; /* 底部外边距 */
+            text-shadow: 0 0 20px #6C43F5; /* 发光效果 */
+        }
+
+        /* 副标题样式 */
+        .header .subtitle {
+            font-size: 1.5rem; /* 字体大小 */
+            color: #B0B0B0; /* 灰色 */
+        }
+
+        /* 游戏区域样式 */
+        .game-section {
+            max-width: 800px; /* 最大宽度限制 */
+            margin: 0 auto; /* 水平居中 */
+            display: flex; /* 弹性布局 */
+            flex-direction: column; /* 垂直排列 */
+            align-items: center; /* 水平居中对齐 */
+            gap: 2rem; /* 元素之间的间距 */
+            padding-bottom: 2rem; /* 底部内边距 */
+        }
+
+        /* 游戏预览标题样式 */
+        .game-preview {
+            font-size: 2rem; /* 字体大小 */
+            color: #E0E0E0; /* 浅灰色 */
+            text-align: center; /* 文字居中 */
+        }
+
+        /* 游戏窗口样式 */
+        .game-frame {
+            width: 100%; /* 宽度100% */
+            height: 600px; /* 高度 */
+            border: 2px solid rgba(108, 67, 245, 0.3); /* 紫色边框 */
+            border-radius: 8px; /* 圆角 */
+            background: #000; /* 黑色背景 */
+        }
+
+        /* 开始游戏按钮样式 */
+        .play-button {
+            display: inline-block; /* 行内块级元素 */
+            background: #6C43F5; /* 紫色背景 */
+            color: #fff; /* 白色文字 */
+            padding: 1rem 3rem; /* 上下、左右内边距 */
+            border: none; /* 无边框 */
+            border-radius: 4px; /* 圆角 */
+            font-size: 1.2rem; /* 字体大小 */
+            text-decoration: none; /* 移除下划线 */
+            min-width: 200px; /* 最小宽度 */
+            text-align: center; /* 文字居中 */
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) { /* 当屏幕宽度小于768px时 */
+            .nav-links {
+                display: none; /* 隐藏导航链接 */
+            }
+            
+            .header h1 {
+                font-size: 2.5rem; /* 减小标题字体 */
+            }
+            
+            .game-frame {
+                height: 400px; /* 减小游戏窗口高度 */
+            }
+
+            .game-section {
+                gap: 1.5rem; /* 减小元素间距 */
+            }
+        }
+    </style> <!-- CSS样式结束 -->
+</head> <!-- 头部区域结束 -->
+<body> <!-- 页面主体开始 -->
+    <div class="stars"></div> <!-- 星星背景容器 -->
+    
+    <!-- 导航栏 -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="index8.html" class="nav-logo">Space Games Hub</a> <!-- 网站Logo -->
+            <div class="nav-links">
+                <a href="index8.html">Home</a> <!-- 首页链接 -->
+                <a href="games1.html">Games</a> <!-- 游戏页面链接 -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <!-- 标题区域 -->
+        <header class="header">
+            <h1>Andromeda Invaders</h1> <!-- 游戏标题 -->
+            <p class="subtitle">Embark on an Epic Space Adventure</p> <!-- 游戏描述 -->
+        </header>
+
+        <!-- 游戏区域 -->
+        <main class="game-section">
+            <h2 class="game-preview">Game Preview</h2> <!-- 预览标题 -->
+            <iframe 
+                class="game-frame" 
+                src="file:///E:/web/youxi-web/invaders-main/invaders-main/invaders.html"
+                title="Andromeda Invaders Game"
+            ></iframe> <!-- 游戏窗口 -->
+            <a href="file:///E:/web/youxi-web/invaders-main/invaders-main/invaders.html" class="play-button">Play Now</a> <!-- 开始游戏按钮 -->
+        </main>
+    </div>
+
+    <!-- JavaScript代码 -->
+    <script>
+        // 创建星星背景的函数
+        function createStars() {
+            const starsContainer = document.querySelector('.stars'); // 获取星星容器
+            const numberOfStars = 200; // 设置星星数量
+            starsContainer.innerHTML = ''; // 清空容器
+            
+            // 循环创建星星
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div'); // 创建星星元素
+                star.className = 'star'; // 添加星星样式
+                star.style.left = `${Math.random() * 100}%`; // 随机横向位置
+                star.style.top = `${Math.random() * 100}%`; // 随机纵向位置
+                star.style.animationDelay = `${Math.random() * 3}s`; // 随机动画延迟，使星星闪烁不同步
+                starsContainer.appendChild(star); // 将星星添加到容器中
+            }
+        }
+
+        // 页面加载完成后创建星星
+        window.addEventListener('DOMContentLoaded', createStars);
+    </script>
+</body> <!-- 页面主体结束 -->
+</html> <!-- HTML文档结束 --> 

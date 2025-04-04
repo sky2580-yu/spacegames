@@ -1,0 +1,282 @@
+<!DOCTYPE html> <!-- 声明这是一个HTML5文档 -->
+<html lang="en"> <!-- 设置网页语言为英文 -->
+<head> <!-- 头部区域开始 -->
+    <meta charset="UTF-8"> <!-- 设置字符编码为UTF-8，支持中文等特殊字符 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 设置移动端视口 -->
+    <title>Game Categories - Space Games Hub</title> <!-- 网页标题 -->
+    <style> <!-- CSS样式开始 -->
+        /* 基础样式重置 */
+        * {
+            margin: 0; /* 清除所有元素的外边距 */
+            padding: 0; /* 清除所有元素的内边距 */
+            box-sizing: border-box; /* 设置盒模型为border-box */
+        }
+
+        /* 自定义太空风格字体 */
+        @font-face {
+            font-family: 'SpaceFont'; /* 定义字体名称 */
+            src: local('OCR-A'), local('Courier New'), monospace; /* 设置字体来源，按优先级排列 */
+        }
+
+        /* 页面基础样式 */
+        body {
+            background-color: #0A0A12; /* 深空黑色背景 */
+            color: #E0E0E0; /* 浅灰色文字 */
+            font-family: system-ui, -apple-system, 'SpaceFont', sans-serif; /* 设置字体族 */
+            line-height: 1.6; /* 行高 */
+            min-height: 100vh; /* 最小高度为视口高度 */
+            position: relative; /* 相对定位 */
+            overflow-y: auto; /* 允许垂直方向滚动 */
+            overflow-x: hidden; /* 禁止水平方向滚动 */
+        }
+
+        /* 星星闪烁动画定义 */
+        @keyframes twinkle {
+            0% { opacity: 0.2; } /* 动画开始时，星星较暗 */
+            50% { opacity: 0.8; } /* 动画中间点，星星最亮 */
+            100% { opacity: 0.2; } /* 动画结束时，星星回到较暗状态 */
+        }
+
+        /* 星星背景 */
+        .stars {
+            position: fixed; /* 固定定位 */
+            top: 0; /* 顶部对齐 */
+            left: 0; /* 左侧对齐 */
+            width: 100%; /* 宽度100% */
+            height: 100%; /* 高度100% */
+            pointer-events: none; /* 不接收鼠标事件 */
+            z-index: -1; /* 置于最底层 */
+        }
+
+        /* 星星样式 */
+        .star {
+            position: absolute; /* 绝对定位 */
+            background-color: #fff; /* 白色背景 */
+            width: 2px; /* 宽度2像素 */
+            height: 2px; /* 高度2像素 */
+            border-radius: 50%; /* 圆形 */
+            animation: twinkle 3s infinite; /* 应用闪烁动画 */
+        }
+
+        /* 导航栏样式 */
+        .nav-bar {
+            position: fixed; /* 固定在顶部 */
+            top: 0; /* 顶部对齐 */
+            left: 0; /* 左侧对齐 */
+            right: 0; /* 右侧对齐 */
+            background: rgba(10, 10, 18, 0.95); /* 半透明背景 */
+            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+            border-bottom: 1px solid rgba(108, 67, 245, 0.3); /* 底部边框 */
+            z-index: 1000; /* 确保在最上层 */
+            padding: 1rem 0; /* 上下内边距 */
+        }
+
+        /* 导航栏容器 */
+        .nav-container {
+            max-width: 1200px; /* 最大宽度 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 0 2rem; /* 左右内边距 */
+            display: flex; /* 弹性布局 */
+            justify-content: space-between; /* 两端对齐 */
+            align-items: center; /* 垂直居中 */
+        }
+
+        /* 网站Logo样式 */
+        .nav-logo {
+            font-family: 'SpaceFont', monospace; /* 使用太空字体 */
+            font-size: 1.5rem; /* 字体大小 */
+            color: #6C43F5; /* 紫色 */
+            text-decoration: none; /* 移除下划线 */
+            letter-spacing: 1px; /* 字间距 */
+        }
+
+        /* 导航链接样式 */
+        .nav-links {
+            display: flex; /* 弹性布局 */
+            gap: 2rem; /* 链接之间的间距 */
+        }
+
+        .nav-links a {
+            color: #E0E0E0; /* 浅灰色 */
+            text-decoration: none; /* 移除下划线 */
+            font-size: 1rem; /* 字体大小 */
+        }
+
+        .nav-links a:hover {
+            color: #00F7FF; /* 悬浮时变为霓虹蓝 */
+        }
+
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px; /* 最大宽度 */
+            margin: 80px auto 0; /* 水平居中，顶部留出导航栏空间 */
+            padding: 2rem; /* 内边距 */
+            min-height: calc(100vh - 80px); /* 最小高度为视口高度减去导航栏高度 */
+        }
+
+        /* 标题区域样式 */
+        .header {
+            text-align: center; /* 文字居中 */
+            padding: 3rem 0; /* 上下内边距 */
+        }
+
+        .header h1 {
+            font-family: 'SpaceFont', monospace; /* 使用太空字体 */
+            font-size: 3.5rem; /* 字体大小 */
+            color: #6C43F5; /* 紫色 */
+            margin-bottom: 1rem; /* 底部外边距 */
+            letter-spacing: 2px; /* 字间距 */
+            text-shadow: 0 0 20px #6C43F5; /* 文字阴影效果 */
+        }
+
+        /* 游戏分类网格 */
+        .game-categories {
+            display: grid; /* 网格布局 */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 响应式网格列 */
+            gap: 2rem; /* 网格间距 */
+            padding: 2rem 0; /* 上下内边距 */
+        }
+
+        /* 游戏分类卡片 */
+        .category-card {
+            background: rgba(108, 67, 245, 0.1); /* 半透明背景 */
+            border: 2px solid #6C43F5; /* 紫色边框 */
+            border-radius: 8px; /* 圆角 */
+            padding: 2rem; /* 内边距 */
+            text-align: center; /* 文字居中 */
+            cursor: pointer; /* 鼠标指针样式 */
+            transition: transform 0.3s, box-shadow 0.3s; /* 添加过渡效果 */
+        }
+
+        /* 分类卡片悬浮效果 */
+        .category-card:hover {
+            transform: translateY(-5px); /* 向上浮动 */
+            box-shadow: 0 0 30px rgba(108, 67, 245, 0.3); /* 阴影效果 */
+        }
+
+        /* 分类图标 */
+        .category-icon {
+            font-size: 3rem; /* 图标大小 */
+            color: #6C43F5; /* 紫色 */
+            margin-bottom: 1rem; /* 底部外边距 */
+        }
+
+        /* 分类标题 */
+        .category-title {
+            font-family: 'SpaceFont', monospace; /* 使用太空字体 */
+            font-size: 1.5rem; /* 字体大小 */
+            color: #E0E0E0; /* 浅灰色 */
+            margin-bottom: 1rem; /* 底部外边距 */
+        }
+
+        /* 分类描述 */
+        .category-description {
+            color: #B0B0B0; /* 灰色 */
+            font-size: 1rem; /* 字体大小 */
+            line-height: 1.6; /* 行高 */
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none; /* 移动端隐藏导航链接 */
+            }
+            
+            .header h1 {
+                font-size: 2.5rem; /* 减小标题字体 */
+            }
+            
+            .game-categories {
+                grid-template-columns: 1fr; /* 单列布局 */
+            }
+        }
+    </style> <!-- CSS样式结束 -->
+</head> <!-- 头部区域结束 -->
+<body> <!-- 主体区域开始 -->
+    <!-- 星空背景 -->
+    <div class="stars"></div> <!-- 星星容器 -->
+
+    <!-- 导航栏 -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="index8.html" class="nav-logo">Space Games Hub</a> <!-- 网站Logo -->
+            <div class="nav-links">
+                <a href="index8.html">Home</a> <!-- 首页链接 -->
+                <a href="games1.html">Games</a> <!-- 游戏分类页链接 -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="container">
+        <header class="header">
+            <h1>Game Categories</h1> <!-- 页面标题 -->
+        </header>
+
+        <!-- 游戏分类网格 -->
+        <div class="game-categories">
+            <!-- 射击游戏分类 -->
+            <div class="category-card">
+                <div class="category-icon">🎯</div> <!-- 射击图标 -->
+                <h2 class="category-title">Shooter Games</h2> <!-- 分类标题 -->
+                <p class="category-description">Experience intense space combat and epic battles in our collection of shooter games.</p> <!-- 分类描述 -->
+            </div>
+
+            <!-- 冒险游戏分类 -->
+            <div class="category-card">
+                <div class="category-icon">🚀</div> <!-- 冒险图标 -->
+                <h2 class="category-title">Adventure Games</h2> <!-- 分类标题 -->
+                <p class="category-description">Explore mysterious galaxies and embark on thrilling space adventures.</p> <!-- 分类描述 -->
+            </div>
+
+            <!-- 策略游戏分类 -->
+            <div class="category-card">
+                <div class="category-icon">⚔️</div> <!-- 策略图标 -->
+                <h2 class="category-title">Strategy Games</h2> <!-- 分类标题 -->
+                <p class="category-description">Command your fleet and conquer the universe with tactical brilliance.</p> <!-- 分类描述 -->
+            </div>
+
+            <!-- 休闲游戏分类 -->
+            <div class="category-card">
+                <div class="category-icon">🎮</div> <!-- 休闲图标 -->
+                <h2 class="category-title">Casual Games</h2> <!-- 分类标题 -->
+                <p class="category-description">Enjoy relaxing space-themed games perfect for quick gaming sessions.</p> <!-- 分类描述 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript代码 -->
+    <script>
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 200;
+
+            // 清除现有的星星
+            starsContainer.innerHTML = '';
+
+            // 创建新的星星
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`; // 添加随机动画延迟
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 页面加载完成后执行
+        window.addEventListener('DOMContentLoaded', () => {
+            createStars();
+        });
+
+        // 页面可见性改变时重新创建星星
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                createStars();
+            }
+        });
+    </script>
+</body> <!-- 主体区域结束 -->
+</html> <!-- HTML文档结束 --> 
